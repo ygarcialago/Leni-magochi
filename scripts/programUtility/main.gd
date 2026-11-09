@@ -23,6 +23,12 @@ func _ready() -> void:
 	$RajaLimon.visible = false
 	$LimonEntero.visible = false
 	var window := get_window()
+	
+	$UpdateChecker.update_available.connect(_on_update_available)
+	$UpdateChecker.no_update_available.connect(_on_no_update)
+	$UpdateChecker.check_failed.connect(_on_update_error)
+
+	$UpdateChecker.check_for_updates()
 
 	# Configuración de la ventana
 	get_viewport().transparent_bg = true
@@ -144,3 +150,20 @@ func _update_mouse_mask() -> void:
 	var bitmap := BitMap.new()
 
 	bitmap.create_from_image_alpha(image)
+
+
+func _on_update_available(release_data: Dictionary) -> void:
+	print("¡Hay una actualización disponible!")
+	print("Versión: ", release_data.get("tag_name", "Desconocida"))
+	print("Notas: ", release_data.get("body", "Sin notas"))
+
+	#print("Versión: ", $UpdateChecker.get_latest_version())
+	#print("Notas: ", $UpdateChecker.get_release_notes())
+
+
+func _on_no_update() -> void:
+	print("Tu Tamagotchi está actualizado.")
+
+
+func _on_update_error(error_message: String) -> void:
+	print("Error comprobando actualizaciones: ", error_message)
