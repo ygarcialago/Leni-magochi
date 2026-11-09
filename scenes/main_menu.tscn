@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://b1b8xg6rhw41n"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vue75"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8194592, 0.8416129, 0, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="MainMenu" type="Control" unique_id=1622622575]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1866159168]
+layout_mode = 0
+offset_right = 199.0
+offset_bottom = 200.0
+
+[node name="Label" type="Label" parent="ColorRect" unique_id=557117929]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9524457, 0.9524458, 3.85046e-06, 1)
+text = "Menú"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SelLimon" type="Button" parent="ColorRect" unique_id=692589224]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.35
+offset_bottom = 7.999996
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.92593074, 0.90805787, 7.70092e-07, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vue75")
+text = "Seleccionar sprite"
+
+[node name="Opciones" type="Button" parent="ColorRect" unique_id=125424274]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_bottom = 21.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.92593074, 0.90805787, 7.70092e-07, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vue75")
+text = "Opciones"
+
+[node name="SalirGuardar" type="Button" parent="ColorRect" unique_id=1642273949]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.7
+offset_bottom = 21.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.92593074, 0.90805787, 7.70092e-07, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_vue75")
+text = "Salir y guardar limón"

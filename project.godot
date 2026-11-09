@@ -1,0 +1,43 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Regalo Helena"
+run/main_scene="uid://p1rt1tb2op2t"
+config/features=PackedStringArray("4.7", "Mobile")
+boot_splash/bg_color=Color(0.13816993, 0.13816993, 0.13816993, 0)
+boot_splash/show_image=false
+boot_splash/use_filter=false
+config/icon="uid://bl6b7bglbkqtt"
+config/windows_native_icon="res://sprites/icono tamagochi limon.ico"
+
+[display]
+
+window/size/viewport_width=200
+window/size/viewport_height=200
+window/size/resizable=false
+window/size/borderless=true
+window/size/always_on_top=true
+window/size/transparent=true
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/per_pixel_transparency/allowed=true
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"
+environment/defaults/default_clear_color=Color(0.29951698, 0.29951698, 0.29951698, 0)
+viewport/transparent_background=true

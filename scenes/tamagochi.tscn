@@ -1,0 +1,130 @@
+[gd_scene format=3 uid="uid://p1rt1tb2op2t"]
+
+[ext_resource type="Script" uid="uid://d2ee1tg2roptx" path="res://scripts/main.gd" id="1_4beie"]
+[ext_resource type="Texture2D" uid="uid://diu074cwmdcr8" path="res://sprites/medio_limon.png" id="2_37p3s"]
+[ext_resource type="Texture2D" uid="uid://cop1pgvyly4ox" path="res://sprites/Tira animaciones medio_limon.png" id="3_u7c16"]
+[ext_resource type="Texture2D" uid="uid://df8jx8xowy71x" path="res://sprites/raja_limon.png" id="4_e04d8"]
+[ext_resource type="Texture2D" uid="uid://c0417ruu1h24h" path="res://sprites/Tira animaciones raja_limon.png" id="5_6lnr1"]
+[ext_resource type="Texture2D" uid="uid://bydes8bynv1wv" path="res://sprites/limon_entero.png" id="6_2byp8"]
+[ext_resource type="Texture2D" uid="uid://dlob82ll1tirk" path="res://sprites/Tira animaciones limon_entero.png" id="7_t67kd"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6loih"]
+atlas = ExtResource("3_u7c16")
+region = Rect2(0, 0, 120, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u50k8"]
+atlas = ExtResource("3_u7c16")
+region = Rect2(120, 0, 120, 120)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_q6q7d"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_37p3s")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_37p3s")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6loih")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u50k8")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2byp8"]
+atlas = ExtResource("5_6lnr1")
+region = Rect2(0, 0, 120, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t67kd"]
+atlas = ExtResource("5_6lnr1")
+region = Rect2(120, 0, 120, 120)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_tf6ws"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_e04d8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_e04d8")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2byp8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t67kd")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_min1n"]
+atlas = ExtResource("7_t67kd")
+region = Rect2(0, 0, 120, 120)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2gbya"]
+atlas = ExtResource("7_t67kd")
+region = Rect2(120, 0, 120, 120)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ml6s5"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_2byp8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_2byp8")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_min1n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2gbya")
+}],
+"loop": 1,
+"name": &"walk",
+"speed": 5.0
+}]
+
+[node name="Node2D" type="Node2D" unique_id=1009576632]
+script = ExtResource("1_4beie")
+
+[node name="MedioLimon" type="AnimatedSprite2D" parent="." unique_id=662140182]
+position = Vector2(101, 157)
+sprite_frames = SubResource("SpriteFrames_q6q7d")
+animation = &"walk"
+autoplay = "walk"
+
+[node name="RajaLimon" type="AnimatedSprite2D" parent="." unique_id=107250957]
+position = Vector2(106, 143)
+sprite_frames = SubResource("SpriteFrames_tf6ws")
+animation = &"walk"
+autoplay = "walk"
+
+[node name="LimonEntero" type="AnimatedSprite2D" parent="." unique_id=377468461]
+position = Vector2(115, 123.00001)
+scale = Vector2(1.2333333, 1.2833333)
+sprite_frames = SubResource("SpriteFrames_ml6s5")
+animation = &"walk"
+autoplay = "walk"
