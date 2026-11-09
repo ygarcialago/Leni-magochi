@@ -6,7 +6,7 @@ var is_chilling := false
 
 var current_pet := 1
 
-
+var current_release_data: Dictionary = {}
 
 
 func change_pet() -> void:
@@ -24,12 +24,53 @@ func _ready() -> void:
 	$LimonEntero.visible = false
 	var window := get_window()
 	
+	# ========================================
+	# Updater checker
+	# ========================================
 	$UpdateChecker.update_available.connect(_on_update_available)
 	$UpdateChecker.no_update_available.connect(_on_no_update)
 	$UpdateChecker.check_failed.connect(_on_update_error)
 
 	$UpdateChecker.check_for_updates()
+	# ========================================
+	# Updater checker
+	# ========================================
+	# ========================================
+	# Manifest downloader
+	# ========================================
+	$ManifestDownloader.manifest_downloaded.connect(_on_manifest_downloaded)
+	$ManifestDownloader.download_failed.connect(_on_manifest_download_failed)
+	# ========================================
+	# Manifest downloader
+	# ========================================
+	
+	# ========================================
+	# Update downloader
+	# ========================================
+	$UpdateDownloader.package_verified.connect(_on_package_verified)
+	$UpdateDownloader.download_failed.connect(_on_download_failed)
+	# ========================================
+	# Update downloader
+	# ========================================
+	$UpdateChecker.check_for_updates()
+	# ========================================
+	# Hash verifier
+	# ========================================
+	var zip_path := "user://Tamagochi-Windows.zip"
 
+	var expected_hash := "27aab77facc7d88b3698d71c29015e9851566e5f2f990dfa921dfcc60aa119c3"
+
+	var real_path := ProjectSettings.globalize_path(zip_path)
+
+	if HashVerifier.verify_file(real_path, expected_hash):
+		print("El paquete es seguro para continuar.")
+	else:
+		print("El paquete ha sido rechazado.")
+
+	# ========================================
+	# Hash verifier
+	# ========================================ç
+	
 	# Configuración de la ventana
 	get_viewport().transparent_bg = true
 	window.transparent = true
@@ -154,12 +195,13 @@ func _update_mouse_mask() -> void:
 
 func _on_update_available(release_data: Dictionary) -> void:
 	print("¡Hay una actualización disponible!")
-	print("Versión: ", release_data.get("tag_name", "Desconocida"))
-	print("Notas: ", release_data.get("body", "Sin notas"))
+	# print("Versión: ", release_data.get("tag_name", "Desconocida"))
+	# print("Notas: ", release_data.get("body", "Sin notas"))
+	current_release_data = release_data
+	
+	print("Descargando manifiesto...")
 
-	#print("Versión: ", $UpdateChecker.get_latest_version())
-	#print("Notas: ", $UpdateChecker.get_release_notes())
-
+	$ManifestDownloader.download_manifest(release_data)
 
 func _on_no_update() -> void:
 	print("Tu Tamagotchi está actualizado.")
@@ -167,3 +209,24 @@ func _on_no_update() -> void:
 
 func _on_update_error(error_message: String) -> void:
 	print("Error comprobando actualizaciones: ", error_message)
+	
+func _on_manifest_downloaded(manifest: Dictionary) -> void:
+	print("¡Manifiesto recibido!")
+	# print("Versión: ", manifest["version"])
+	# print("Canal: ", manifest["channel"])
+	# print("Plataformas: ", manifest["platforms"].keys())
+	print("Iniciando descarga del paquete...")
+
+	$UpdateDownloader.download_update(manifest, current_release_data)
+
+func _on_manifest_download_failed(error_message: String) -> void:
+	push_error("Error descargando manifiesto: " + error_message)
+	
+func _on_package_verified(file_path: String, platform: String) -> void:
+	print("¡Paquete descargado y verificado!")
+	print("Plataforma: ", platform)
+	print("Archivo: ", file_path)
+
+
+func _on_download_failed(error_message: String) -> void:
+	push_error("Error descargando actualización: " + error_message)

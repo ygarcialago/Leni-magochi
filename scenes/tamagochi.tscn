@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://bydes8bynv1wv" path="res://sprites/limon_entero.png" id="6_2byp8"]
 [ext_resource type="Texture2D" uid="uid://dlob82ll1tirk" path="res://sprites/Tira animaciones limon_entero.png" id="7_t67kd"]
 [ext_resource type="Script" uid="uid://h06jfvnnnfkr" path="res://scripts/updater/update_checker.gd" id="8_t67kd"]
+[ext_resource type="Script" uid="uid://c10486comwv6m" path="res://scripts/updater/manifest_downloader.gd" id="9_min1n"]
+[ext_resource type="Script" uid="uid://dsjhrvgg4dy47" path="res://scripts/updater/update_downloader.gd" id="10_2gbya"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6loih"]
 atlas = ExtResource("3_u7c16")
@@ -132,3 +134,9 @@ autoplay = "walk"
 
 [node name="UpdateChecker" type="Node" parent="." unique_id=541286199]
 script = ExtResource("8_t67kd")
+
+[node name="ManifestDownloader" type="Node" parent="." unique_id=1161559969]
+script = ExtResource("9_min1n")
+
+[node name="UpdateDownloader" type="Node" parent="." unique_id=762246167]
+script = ExtResource("10_2gbya")
