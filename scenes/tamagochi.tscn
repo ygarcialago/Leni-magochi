@@ -1,12 +1,13 @@
 [gd_scene format=3 uid="uid://p1rt1tb2op2t"]
 
-[ext_resource type="Script" uid="uid://d2ee1tg2roptx" path="res://scripts/main.gd" id="1_4beie"]
+[ext_resource type="Script" uid="uid://d2ee1tg2roptx" path="res://scripts/programUtility/main.gd" id="1_4beie"]
 [ext_resource type="Texture2D" uid="uid://diu074cwmdcr8" path="res://sprites/medio_limon.png" id="2_37p3s"]
 [ext_resource type="Texture2D" uid="uid://cop1pgvyly4ox" path="res://sprites/Tira animaciones medio_limon.png" id="3_u7c16"]
 [ext_resource type="Texture2D" uid="uid://df8jx8xowy71x" path="res://sprites/raja_limon.png" id="4_e04d8"]
 [ext_resource type="Texture2D" uid="uid://c0417ruu1h24h" path="res://sprites/Tira animaciones raja_limon.png" id="5_6lnr1"]
 [ext_resource type="Texture2D" uid="uid://bydes8bynv1wv" path="res://sprites/limon_entero.png" id="6_2byp8"]
 [ext_resource type="Texture2D" uid="uid://dlob82ll1tirk" path="res://sprites/Tira animaciones limon_entero.png" id="7_t67kd"]
+[ext_resource type="Script" uid="uid://h06jfvnnnfkr" path="res://scripts/updater/update_checker.gd" id="8_t67kd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6loih"]
 atlas = ExtResource("3_u7c16")
@@ -128,3 +129,6 @@ scale = Vector2(1.2333333, 1.2833333)
 sprite_frames = SubResource("SpriteFrames_ml6s5")
 animation = &"walk"
 autoplay = "walk"
+
+[node name="UpdateChecker" type="Node" parent="." unique_id=541286199]
+script = ExtResource("8_t67kd")
