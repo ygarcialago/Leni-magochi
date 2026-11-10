@@ -3,4 +3,5 @@
 /android/
 build/
 manifest.json
+manifest.json.sig
 secrets/
