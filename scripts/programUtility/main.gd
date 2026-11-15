@@ -8,6 +8,7 @@ var current_pet := 1
 
 var current_release_data: Dictionary = {}
 
+var update_installer := UpdateInstaller.new()
 
 func change_pet() -> void:
 	#current_pet = 2 if current_pet == 1 else 1
@@ -31,31 +32,24 @@ func _ready() -> void:
 	$UpdateChecker.no_update_available.connect(_on_no_update)
 	$UpdateChecker.check_failed.connect(_on_update_error)
 
-	$UpdateChecker.check_for_updates()
-	# ========================================
-	# Updater checker
-	# ========================================
-	# ========================================
-	# Manifest downloader
-	# ========================================
+	#$UpdateChecker.check_for_updates()
+
 	$ManifestDownloader.manifest_downloaded.connect(_on_manifest_downloaded)
 	$ManifestDownloader.download_failed.connect(_on_manifest_download_failed)
-	# ========================================
-	# Manifest downloader
-	# ========================================
-	
-	# ========================================
-	# Update downloader
-	# ========================================
+
 	$UpdateDownloader.package_verified.connect(_on_package_verified)
 	$UpdateDownloader.download_failed.connect(_on_download_failed)
-	# ========================================
-	# Update downloader
-	# ========================================
+	
+	update_installer.installation_started.connect(
+		_on_installation_started
+	)
+
+	update_installer.installation_failed.connect(
+		_on_installation_failed
+	)
+
 	$UpdateChecker.check_for_updates()
-	# ========================================
-	# Hash verifier
-	# ========================================
+
 	var zip_path := "user://Tamagochi-Windows.zip"
 
 	var expected_hash := "27aab77facc7d88b3698d71c29015e9851566e5f2f990dfa921dfcc60aa119c3"
@@ -226,7 +220,24 @@ func _on_package_verified(file_path: String, platform: String) -> void:
 	print("¡Paquete descargado y verificado!")
 	print("Plataforma: ", platform)
 	print("Archivo: ", file_path)
+	var installation_dir := OS.get_executable_path().get_base_dir()
+
+	update_installer.install_update(
+		file_path,
+		installation_dir,
+		"Regalo Helena.x86_64"
+		)
 
 
 func _on_download_failed(error_message: String) -> void:
 	push_error("Error descargando actualización: " + error_message)
+
+
+
+func _on_installation_started() -> void:
+	print("Instalador iniciado. Cerrando Tamagochi...")
+	get_tree().quit()
+
+
+func _on_installation_failed(error_message: String) -> void:
+	push_error("Error de instalación: " + error_message)
