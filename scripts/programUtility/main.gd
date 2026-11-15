@@ -1,10 +1,28 @@
 extends Node2D
 
 var speedMovement := 2
-var direction := Vector2(1, 0)
+var direction := Vector2(1, 0).normalized()
 var is_chilling := false
+var pet_direction := Vector2(1, 0)
+var pet_speed := 120.0
 
 var current_pet := 1
+
+var dragging := false
+var drag_offset := Vector2i.ZERO
+
+var resizing := false
+var resize_start_mouse := Vector2i.ZERO
+var resize_start_position := Vector2i.ZERO
+var resize_start_size := Vector2i.ZERO
+
+var resize_direction := Vector2i.ZERO
+
+var resize_margin := 20
+const BORDER_SIZE := 12
+
+var min_window_size := Vector2i(300, 200)
+var max_window_size := Vector2i(1200, 800)
 
 var current_release_data: Dictionary = {}
 
@@ -96,47 +114,290 @@ func _ready() -> void:
 	get_active_sprite().play("walk")
 
 
-func _process(_delta: float) -> void:
-	# Mientras está chilling no se mueve
-	if is_chilling:
+func _process(delta: float) -> void:
+
+	if is_chilling or dragging or resizing:
+		return
+
+	var viewport_size := get_viewport_rect().size
+
+	# Usamos el sprite activo para calcular los límites
+	var active_pet := get_active_sprite()
+
+	var texture := active_pet.sprite_frames.get_frame_texture(
+		active_pet.animation,
+		active_pet.frame
+	)
+
+	if texture == null:
+		return
+
+	var pet_size := texture.get_size()
+
+	# Límites del terrario
+	var min_x := pet_size.x / 2.0
+	var min_y := pet_size.y / 2.0
+
+	var max_x := viewport_size.x - pet_size.x / 2.0
+	var max_y := viewport_size.y - pet_size.y / 2.0
+
+	# Actualizar posición compartida
+	active_pet.position += direction * speedMovement * 60.0 * delta
+
+	# Rebote horizontal
+	if active_pet.position.x >= max_x:
+		active_pet.position.x = max_x
+		direction.x = -abs(direction.x)
+
+		active_pet.flip_h = true
+
+	elif active_pet.position.x <= min_x:
+		active_pet.position.x = min_x
+		direction.x = abs(direction.x)
+
+		active_pet.flip_h = false
+
+	# Rebote vertical
+	if active_pet.position.y >= max_y:
+		active_pet.position.y = max_y
+		direction.y = -abs(direction.y)
+
+	elif active_pet.position.y <= min_y:
+		active_pet.position.y = min_y
+		direction.y = abs(direction.y)
+
+	# Sincronizar los tres limones
+	for pet in [$MedioLimon, $RajaLimon, $LimonEntero]:
+
+		pet.position = active_pet.position
+		pet.flip_h = active_pet.flip_h
+	_update_mouse_mask()
+
+
+func _input(event: InputEvent) -> void:
+	var window := get_window()
+
+	# =========================================
+	# CLICS DEL RATÓN
+	# =========================================
+	if event is InputEventMouseButton:
+
+		# -------------------------------------
+		# BOTÓN IZQUIERDO
+		# -------------------------------------
+		if event.button_index == MOUSE_BUTTON_LEFT:
+
+			if event.pressed:
+				var mouse := DisplayServer.mouse_get_position()
+				var local_mouse := mouse - window.position
+
+				var direction_resize := get_resize_direction(
+					local_mouse,
+					window.size
+				)
+
+				# REDIMENSIONAR DESDE UN BORDE
+				if direction_resize != Vector2i.ZERO:
+					resizing = true
+					dragging = false
+
+					resize_direction = direction_resize
+					resize_start_mouse = mouse
+					resize_start_position = window.position
+					resize_start_size = window.size
+
+					$WindowHighlight.visible = true
+
+				# MOVER SOLO SI SE PULSA EL LIMÓN
+				elif _is_mouse_over_pet(local_mouse):
+					dragging = true
+					resizing = false
+
+					drag_offset = mouse - window.position
+
+					$WindowHighlight.visible = true
+
+					if not is_chilling:
+						start_chilling()
+
+			else:
+				# SOLTAR RATÓN
+				dragging = false
+				resizing = false
+				resize_direction = Vector2i.ZERO
+
+				$WindowHighlight.visible = false
+				_update_mouse_mask()
+
+		# -------------------------------------
+		# BOTÓN DERECHO
+		# -------------------------------------
+		elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			var mouse := DisplayServer.mouse_get_position()
+			var local_mouse := mouse - window.position
+
+			if _is_mouse_over_pet(local_mouse):
+				change_pet()
+
+	# =========================================
+	# MOVIMIENTO DEL RATÓN
+	# =========================================
+	elif event is InputEventMouseMotion:
+
+		var mouse := DisplayServer.mouse_get_position()
+
+		# -------------------------------------
+		# REDIMENSIONAR
+		# -------------------------------------
+		if resizing:
+
+			var difference := mouse - resize_start_mouse
+
+			var new_size := resize_start_size
+			var new_position := resize_start_position
+
+			if resize_direction.x != 0:
+				new_size.x += difference.x * resize_direction.x
+
+				if resize_direction.x < 0:
+					new_position.x += difference.x
+
+			if resize_direction.y != 0:
+				new_size.y += difference.y * resize_direction.y
+
+				if resize_direction.y < 0:
+					new_position.y += difference.y
+
+			var clamped_size := Vector2i(
+				clampi(new_size.x, min_window_size.x, max_window_size.x),
+				clampi(new_size.y, min_window_size.y, max_window_size.y)
+			)
+
+			# Mantener fijo el borde opuesto
+			if resize_direction.x < 0:
+				new_position.x += new_size.x - clamped_size.x
+
+			if resize_direction.y < 0:
+				new_position.y += new_size.y - clamped_size.y
+
+			window.size = clamped_size
+			window.position = new_position
+
+		# -------------------------------------
+		# MOVER VENTANA
+		# -------------------------------------
+		elif dragging:
+			window.position = mouse - drag_offset
+
+
+
+func get_resize_direction(
+	mouse_position: Vector2i,
+	window_size: Vector2i
+) -> Vector2i:
+
+	var left := mouse_position.x <= BORDER_SIZE
+	var right := mouse_position.x >= window_size.x - BORDER_SIZE
+
+	var top := mouse_position.y <= BORDER_SIZE
+	var bottom := mouse_position.y >= window_size.y - BORDER_SIZE
+
+	# No permitir redimensionar desde las esquinas
+	if (left or right) and (top or bottom):
+		return Vector2i.ZERO
+
+	if left:
+		return Vector2i(-1, 0)
+
+	if right:
+		return Vector2i(1, 0)
+
+	if top:
+		return Vector2i(0, -1)
+
+	if bottom:
+		return Vector2i(0, 1)
+
+	return Vector2i.ZERO
+
+
+
+func _is_mouse_over_pet(mouse_position: Vector2i) -> bool:
+
+	var pet := get_active_sprite()
+
+	var texture := pet.sprite_frames.get_frame_texture(
+		pet.animation,
+		pet.frame
+	)
+
+	if texture == null:
+		return false
+
+	# Convertir la posición del ratón a coordenadas locales
+	# del sprite.
+	var transform := pet.get_global_transform_with_canvas()
+	var local_mouse := transform.affine_inverse() * Vector2(mouse_position)
+
+	var texture_size := texture.get_size()
+
+	var rect_position := pet.offset
+
+	if pet.centered:
+		rect_position -= texture_size / 2.0
+
+	var pixel_position := local_mouse - rect_position
+
+	var pixel_x := int(floor(pixel_position.x))
+	var pixel_y := int(floor(pixel_position.y))
+
+	if pixel_x < 0 or pixel_x >= texture_size.x:
+		return false
+
+	if pixel_y < 0 or pixel_y >= texture_size.y:
+		return false
+
+	# Obtener el píxel real de la textura.
+	if pet.flip_h:
+		pixel_x = int(texture_size.x) - 1 - pixel_x
+
+	var image := texture.get_image()
+
+	return image.get_pixel(pixel_x, pixel_y).a > 0.1
+
+
+
+func save_window_settings() -> void:
+
+	var config := ConfigFile.new()
+
+	config.set_value("window", "position", get_window().position)
+	config.set_value("window", "size", get_window().size)
+
+	config.save("user://settings.cfg")
+
+func load_window_settings() -> void:
+
+	var config := ConfigFile.new()
+
+	var error := config.load("user://settings.cfg")
+
+	if error != OK:
 		return
 
 	var window := get_window()
 
-	var movement := Vector2i(direction * speedMovement)
+	window.position = config.get_value(
+		"window",
+		"position",
+		window.position
+	)
 
-	window.position += movement
-
-	var usable_screen := DisplayServer.screen_get_usable_rect()
-
-	# Llegamos al lado derecho
-	if window.position.x + window.size.x >= usable_screen.end.x:
-		window.position.x = usable_screen.end.x - window.size.x
-
-		direction.x = -1
-		$MedioLimon.flip_h = true
-		$RajaLimon.flip_h = true
-		$LimonEntero.flip_h = true
-
-	# Llegamos al lado izquierdo
-	elif window.position.x <= usable_screen.position.x:
-		window.position.x = usable_screen.position.x
-
-		direction.x = 1
-		$MedioLimon.flip_h = false
-		$RajaLimon.flip_h = false
-		$LimonEntero.flip_h = false
-
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
-
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if not is_chilling:
-				start_chilling()
-
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			change_pet()
+	window.size = config.get_value(
+		"window",
+		"size",
+		window.size
+	)
 
 func get_active_sprite() -> AnimatedSprite2D:
 	if current_pet == 1:
@@ -166,26 +427,29 @@ func start_chilling() -> void:
 	$LimonEntero.play("walk")
 
 
+
 func _update_mouse_mask() -> void:
-	var anim_sprite := get_active_sprite()
+	var window := get_window()
 
-	var texture = anim_sprite.sprite_frames.get_frame_texture(
-		anim_sprite.animation,
-		anim_sprite.frame
-	)
+	# Desactivar el passthrough para que Godot
+	# pueda recibir los eventos del ratón en toda la ventana.
+	# Así podemos detectar los cuatro bordes y el limón.
+	window.mouse_passthrough_polygon = PackedVector2Array()
 
-	if texture == null:
-		return
-
-	var image = texture.get_image()
-
-	if anim_sprite.flip_h:
-		image.flip_x()
+"""
+func _get_mouse_polygon(image: Image) -> PackedVector2Array:
 
 	var bitmap := BitMap.new()
-
 	bitmap.create_from_image_alpha(image)
 
+	return bitmap.opaque_to_polygons(
+		Rect2i(Vector2i.ZERO, image.get_size()),
+		1.0
+	)[0] if not bitmap.opaque_to_polygons(
+		Rect2i(Vector2i.ZERO, image.get_size()),
+		1.0
+	).is_empty() else PackedVector2Array()
+"""
 
 func _on_update_available(release_data: Dictionary) -> void:
 	print("¡Hay una actualización disponible!")

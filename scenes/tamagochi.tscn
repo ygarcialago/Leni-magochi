@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://c10486comwv6m" path="res://scripts/updater/manifest_downloader.gd" id="9_min1n"]
 [ext_resource type="Script" uid="uid://dsjhrvgg4dy47" path="res://scripts/updater/update_downloader.gd" id="10_2gbya"]
 [ext_resource type="Script" uid="uid://chpppdg4ekn8r" path="res://scripts/updater/update_installer.gd" id="11_1brui"]
+[ext_resource type="Script" uid="uid://bj4m0rjbdkbgd" path="res://scripts/programUtility/window_highlight.gd" id="12_dc03c"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6loih"]
 atlas = ExtResource("3_u7c16")
@@ -144,3 +145,6 @@ script = ExtResource("10_2gbya")
 
 [node name="UpdateInstaller" type="Node" parent="." unique_id=1404050106]
 script = ExtResource("11_1brui")
+
+[node name="WindowHighlight" type="Node2D" parent="." unique_id=1649367692]
+script = ExtResource("12_dc03c")
