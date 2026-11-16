@@ -22,7 +22,7 @@ var resize_margin := 20
 const BORDER_SIZE := 12
 
 var min_window_size := Vector2i(300, 200)
-var max_window_size := Vector2i(1200, 800)
+var max_window_size := Vector2i(DisplayServer.screen_get_size().x, (DisplayServer.screen_get_size().y / 2))
 
 var current_release_data: Dictionary = {}
 
